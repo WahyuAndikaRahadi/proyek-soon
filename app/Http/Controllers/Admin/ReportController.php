@@ -124,8 +124,8 @@ class ReportController extends Controller
         $spreadsheet = IOFactory::load($templatePath);
         $sheet = $spreadsheet->getActiveSheet();
 
-        // Data starts from row 13, column B
-        $startDataRow = 13;
+        // Data starts from row 14, column B
+        $startDataRow = 14;
         $currentRow = $startDataRow;
 
         foreach ($attendances as $attendance) {
@@ -297,8 +297,8 @@ class ReportController extends Controller
         $spreadsheet = IOFactory::load($templatePath);
         $sheet = $spreadsheet->getActiveSheet();
 
-        // Data starts from row 13, column B
-        $startDataRow = 13;
+        // Data starts from row 14, column B
+        $startDataRow = 14;
         $currentRow = $startDataRow;
 
         foreach ($journals as $journal) {
@@ -404,7 +404,7 @@ class ReportController extends Controller
 
         // Define all possible assessment types
         $allAssessmentTypes = [
-            'Tugas 1', 'Tugas 2', 'Tugas 3', 'Tugas 4', 'Tugas 5', 'Tugas 6',
+            'Tugas 1', 'Tugas 2', 'Tugas 3', 'Tugas 4', 'Tugas 5', 'Tug as 6',
             'STS1', 'STS2', 'SAS', 'SAT'
         ];
 
@@ -542,8 +542,8 @@ class ReportController extends Controller
             $sheet->setCellValue(Coordinate::stringFromColumnIndex($currentColIndex++). $headerRow, $type);
         }
 
-        // Data starts from row 13, column B
-        $startDataRow = 13;
+        // Data starts from row 14, column B
+        $startDataRow = 14;
         $currentRow = $startDataRow;
 
         foreach ($students as $student) {

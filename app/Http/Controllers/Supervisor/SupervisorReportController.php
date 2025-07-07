@@ -124,8 +124,8 @@ class SupervisorReportController extends Controller
         $spreadsheet = IOFactory::load($templatePath);
         $sheet = $spreadsheet->getActiveSheet();
 
-        // Data starts from row 13, column B
-        $startDataRow = 13;
+        // Data starts from row 14, column B
+        $startDataRow = 14;
         $currentRow = $startDataRow;
 
         foreach ($attendances as $attendance) {
@@ -297,8 +297,8 @@ class SupervisorReportController extends Controller
         $spreadsheet = IOFactory::load($templatePath);
         $sheet = $spreadsheet->getActiveSheet();
 
-        // Data starts from row 13, column B
-        $startDataRow = 13;
+        // Data starts from row 14, column B
+        $startDataRow = 14;
         $currentRow = $startDataRow;
 
         foreach ($journals as $journal) {
@@ -542,8 +542,8 @@ class SupervisorReportController extends Controller
             $sheet->setCellValue(Coordinate::stringFromColumnIndex($currentColIndex++). $headerRow, $type);
         }
 
-        // Data starts from row 13, column B
-        $startDataRow = 13;
+        // Data starts from row 14, column B
+        $startDataRow = 14;
         $currentRow = $startDataRow;
 
         foreach ($students as $student) {
