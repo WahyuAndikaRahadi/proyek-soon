@@ -758,6 +758,26 @@
                     </a>
                 </div>
             </div>
+
+            {{-- Attitude Records Dropdown (NEW) --}}
+            <div class="relative dropdown">
+                <button
+                    class="flex items-center w-full text-left px-3 py-2 text-white hover:bg-white/20 rounded-md transition duration-200 focus:outline-none dropdown-button {{ Request::is('teacher/attitude-records*') ? 'bg-white/20 font-semibold' : '' }}"
+                    type="button">
+                    <i class="fas fa-user-tag mr-2"></i>Catatan Sikap <i
+                        class="fas fa-chevron-down text-xs ml-2"></i>
+                </button>
+                <div class="dropdown-menu">
+                    <a href="{{ route('teacher.attitude_records.history') }}"
+                        class="{{ Request::routeIs('teacher.attitude_records.history') ? 'active' : '' }}">
+                        <i class="fas fa-history mr-1"></i>Riwayat Catatan Sikap
+                    </a>
+                    <a href="{{ route('teacher.attitude_records.create') }}"
+                        class="{{ Request::routeIs('teacher.attitude_records.create') ? 'active' : '' }}">
+                        <i class="fas fa-plus-circle mr-1"></i>Tambah Catatan Sikap
+                    </a>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -857,6 +877,7 @@
                     <li><a href="{{ route('teacher.schedules.index') }}" class="hover:underline">Jadwal</a></li>
                     <li><a href="{{ route('teacher.journals.index') }}" class="hover:underline">Jurnal</a></li>
                     <li><a href="{{ route('teacher.attendances.history') }}" class="hover:underline">Absensi</a></li>
+                    <li><a href="{{ route('teacher.attitude_records.history') }}" class="hover:underline">Catatan Sikap</a></li> {{-- NEW --}}
                 </ul>
             </div>
 
@@ -905,6 +926,12 @@
             data-page-name="assessments">
             <i class="fas fa-clipboard-list icon"></i>
             <span>Nilai</span>
+        </a>
+        <a href="{{ route('teacher.attitude_records.history') }}" {{-- NEW --}}
+            class="nav-item {{ Request::routeIs('teacher.attitude_records*') ? 'active' : '' }}"
+            data-page-name="attitude-records">
+            <i class="fas fa-user-tag icon"></i> {{-- Icon for attitude records --}}
+            <span>Sikap</span>
         </a>
     </nav>
 

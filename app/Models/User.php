@@ -97,4 +97,13 @@ class User extends Authenticatable
     {
         return $this->hasMany(Assessment::class, 'user_id');
     }
+
+    /**
+     * Mendapatkan catatan sikap yang dibuat oleh guru.
+     */
+    public function attitudeRecords(): HasMany
+    {
+        return $this->hasMany(AttitudeRecord::class, 'user_id');
+    }
 }
+

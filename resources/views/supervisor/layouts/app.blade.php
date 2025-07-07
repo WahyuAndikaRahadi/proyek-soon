@@ -1,7 +1,7 @@
 @extends('adminlte::page')
 
 {{-- Judul Halaman --}}
-@section('title', 'Jurnal Sekolah Supervisor')
+@section('title', 'Jurnal Sekolah BK')
 
 {{-- Tambahkan Favicon --}}
 @section('meta_tags')
@@ -36,6 +36,20 @@
         </div>
     @endif
 
+    {{-- Flash Message: Validation Errors --}}
+    @if ($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
+
     {{-- Konten Body Spesifik --}}
     @yield('content_body')
 
@@ -51,60 +65,48 @@
     {{-- Tambahkan JS kustom di sini jika diperlukan --}}
 @stop
 
-{{-- Sidebar Khusus Supervisor --}}
+{{-- Sidebar Khusus BK --}}
 @section('sidebar_menu')
 
     {{-- Dashboard --}}
     <li class="nav-item">
-        <a href="{{ route('supervisor.dashboard') }}" class="nav-link {{ Request::is('supervisor/dashboard') ? 'active' : '' }}">
+        <a href="{{ route('bk.dashboard') }}" class="nav-link {{ Request::is('bk/dashboard') ? 'active' : '' }}">
             <i class="nav-icon fas fa-tachometer-alt"></i>
             <p>Dashboard</p>
         </a>
     </li>
 
-    {{-- Header: Laporan --}}
-    <li class="nav-header">LAPORAN</li>
+    {{-- Header: Fitur BK --}}
+    <li class="nav-header">FITUR BK</li>
 
-    <li class="nav-item has-treeview {{ Request::is('supervisor/reports*') ? 'menu-open' : '' }}">
-        <a href="#" class="nav-link {{ Request::is('supervisor/reports*') ? 'active' : '' }}">
-            <i class="nav-icon fas fa-chart-line"></i>
-            <p>
-                Laporan
-                <i class="right fas fa-angle-left"></i>
-            </p>
+    {{-- Catatan Sikap --}}
+    <li class="nav-item">
+        <a href="{{ route('bk.attitude_records.index') }}" class="nav-link {{ Request::is('bk/attitude-records*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-clipboard-list"></i>
+            <p>Catatan Sikap</p>
         </a>
-        <ul class="nav nav-treeview">
-            <li class="nav-item">
-                <a href="{{ route('supervisor.reports.attendance') }}" class="nav-link {{ Request::is('supervisor/reports/attendance*') ? 'active' : '' }}">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Absensi</p>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('supervisor.reports.journal') }}" class="nav-link {{ Request::is('supervisor/reports/journal*') ? 'active' : '' }}">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Jurnal Harian</p>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('supervisor.reports.assessment') }}" class="nav-link {{ Request::is('supervisor/reports/assessment*') ? 'active' : '' }}">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Penilaian Siswa</p>
-                </a>
-            </li>
-        </ul>
+    </li>
+
+    {{-- Catatan Konseling --}}
+    <li class="nav-item">
+        <a href="{{ route('bk.counseling_records.index') }}" class="nav-link {{ Request::is('bk/counseling-records*') ? 'active' : '' }}">
+            <i class="nav-icon fas fa-comments"></i>
+            <p>Catatan Konseling</p>
+        </a>
     </li>
 
     {{-- Header: Akun --}}
     <li class="nav-header">AKUN</li>
 
+    {{-- Ubah Password --}}
     <li class="nav-item">
-        <a href="{{ route('supervisor.password.change.form') }}" class="nav-link {{ Request::is('supervisor/change-password') ? 'active' : '' }}">
+        <a href="{{ route('bk.password.edit') }}" class="nav-link {{ Request::is('bk/change-password') ? 'active' : '' }}">
             <i class="nav-icon fas fa-key"></i>
             <p>Ubah Password</p>
         </a>
     </li>
 
+    {{-- Logout --}}
     <li class="nav-item">
         <form action="{{ route('logout') }}" method="POST" class="form-inline">
             @csrf
@@ -121,3 +123,4 @@
 @section('footer')
     <strong>Hak Cipta &copy; {{ date('Y') }} <a href="#">SMK Negeri 69 Jakarta</a>.</strong> Semua Hak Dilindungi.
 @stop
+

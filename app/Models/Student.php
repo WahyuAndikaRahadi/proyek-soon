@@ -48,7 +48,12 @@ class Student extends Model
         return $this->hasMany(Assessment::class);
     }
 
-    
+    /**
+     * Mendapatkan catatan sikap siswa ini.
+     */
+    public function attitudeRecords(): HasMany
+    {
+        return $this->hasMany(AttitudeRecord::class, 'student_id');
+    }
 }
-
 

@@ -23,15 +23,19 @@ use App\Http\Controllers\Teacher\ScheduleController;
 use App\Http\Controllers\Teacher\JournalController;
 use App\Http\Controllers\Teacher\AttendanceController;
 use App\Http\Controllers\Teacher\AssessmentController;
-use App\Http\Controllers\Teacher\NotificationController; // <--- Import NotificationController di namespace Teacher
+use App\Http\Controllers\Teacher\NotificationController;
+use App\Http\Controllers\Teacher\TeacherAttitudeRecordController; // <--- Import Controller Catatan Sikap Guru
 
 // Supervisor Controllers
 use App\Http\Controllers\Supervisor\DashboardController as SupervisorDashboardController;
-use App\Http\Controllers\Supervisor\SupervisorPasswordChangeController; // Import SupervisorPasswordChangeController
-use App\Http\Controllers\Supervisor\SupervisorReportController; // <--- ADD THIS LINE
+use App\Http\Controllers\Supervisor\SupervisorPasswordChangeController;
+use App\Http\Controllers\Supervisor\SupervisorReportController;
 
-
-
+// BK Controllers
+use App\Http\Controllers\Bk\DashboardController;
+use App\Http\Controllers\Bk\BkAttitudeRecordController;
+use App\Http\Controllers\Bk\BkCounselingRecordController;
+use App\Http\Controllers\Bk\BkPasswordChangeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -51,6 +55,8 @@ Route::get('/', function () {
             return redirect()->route('admin.dashboard');
         } elseif (Auth::user()->role === 'guru') {
             return redirect()->route('teacher.dashboard');
+        } elseif (Auth::user()->role === 'bk') { // Tambahkan redirect untuk peran BK
+            return redirect()->route('bk.dashboard');
         }
     }
     return redirect()->route('login');
@@ -125,14 +131,14 @@ Route::middleware(['auth', 'role:guru'])->prefix('teacher')->name('teacher.')->g
 
     // Jurnal Harian Guru (menggunakan Resource Controller)
     Route::resource('journals', JournalController::class);
-    
+
 
     // Absensi Siswa (disesuaikan dengan kebutuhan mencatat dan melihat riwayat)
     Route::prefix('attendances')->name('attendances.')->group(function () {
         Route::get('/create', [AttendanceController::class, 'create'])->name('create');
         Route::post('/', [AttendanceController::class, 'store'])->name('store');
-       Route::get('/{attendance}/edit', [AttendanceController::class, 'edit'])->name('edit');
-    Route::put('/{attendance}', [AttendanceController::class, 'update'])->name('update');
+        Route::get('/{attendance}/edit', [AttendanceController::class, 'edit'])->name('edit');
+        Route::put('/{attendance}', [AttendanceController::class, 'update'])->name('update');
 
         Route::get('/history', [AttendanceController::class, 'history'])->name('history');
     });
@@ -147,12 +153,22 @@ Route::middleware(['auth', 'role:guru'])->prefix('teacher')->name('teacher.')->g
         ->name('assessments.downloadTemplate');
 
 
+    // Rute Catatan Sikap Siswa untuk Guru
+    Route::prefix('attitude-records')->name('attitude_records.')->group(function () {
+        Route::get('/create', [TeacherAttitudeRecordController::class, 'create'])->name('create');
+        Route::post('/', [TeacherAttitudeRecordController::class, 'store'])->name('store');
+        Route::get('/{attitudeRecord}/edit', [TeacherAttitudeRecordController::class, 'edit'])->name('edit');
+        Route::put('/{attitudeRecord}', [TeacherAttitudeRecordController::class, 'update'])->name('update');
+        Route::delete('/{attitudeRecord}', [TeacherAttitudeRecordController::class, 'destroy'])->name('destroy'); // <--- BARIS INI DITAMBAHKAN
+        Route::get('/history', [TeacherAttitudeRecordController::class, 'history'])->name('history');
+    });
 
-    // Rute Notifikasi untuk Guru  (PERUBAHAN DI SINI)
-    // Sekarang rute ini otomatis memiliki prefix '/teacher' dan nama rute 'teacher.'
+
+    // Rute Notifikasi untuk Guru
     Route::post('/notifications/dismiss', [NotificationController::class, 'markAsDismissed'])->name('notifications.dismiss');
 });
 
+// Grup Rute untuk Supervisor
 Route::middleware(['auth', 'role:supervisor'])->prefix('supervisor')->name('supervisor.')->group(function () {
     // Dashboard Supervisor
     Route::get('/dashboard', [SupervisorDashboardController::class, 'index'])->name('dashboard');
@@ -174,4 +190,28 @@ Route::middleware(['auth', 'role:supervisor'])->prefix('supervisor')->name('supe
         Route::get('/assessment/export', [SupervisorReportController::class, 'exportAssessment'])->name('assessment.export');
     });
 
+});
+
+// Grup Rute untuk BK (Tanpa Middleware Auth dan Role)
+Route::middleware(['auth', 'role:bk'])->prefix('bk')->name('bk.')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Rute untuk Catatan Sikap (Attitude Records)
+    Route::get('/attitude-records', [BkAttitudeRecordController::class, 'index'])->name('attitude_records.index');
+
+    // Rute untuk Catatan Konseling (Counseling Records)
+    // Menggunakan 'names' untuk memastikan nama rute menggunakan underscore
+    Route::resource('counseling-records', BkCounselingRecordController::class)->names([
+        'index' => 'counseling_records.index',
+        'create' => 'counseling_records.create',
+        'store' => 'counseling_records.store',
+        'show' => 'counseling_records.show',
+        'edit' => 'counseling_records.edit',
+        'update' => 'counseling_records.update',
+        'destroy' => 'counseling_records.destroy',
+    ]);
+
+    // Rute untuk Ubah Password BK
+    Route::get('/change-password', [BkPasswordChangeController::class, 'edit'])->name('password.edit');
+    Route::put('/change-password', [BkPasswordChangeController::class, 'update'])->name('password.update');
 });

@@ -49,6 +49,26 @@ class DatabaseSeeder extends Seeder
             'remember_token' => Str::random(10),
         ]);
 
+        // Membuat BK (Bimbingan Konseling)
+        User::create([
+            'name' => 'Petugas BK',
+            'email' => 'bk@bk.com',
+            'password' => Hash::make('password'),
+            'role' => 'bk',
+            'nip' => 'BK123456789',
+            'remember_token' => Str::random(10),
+        ]);
+
+        // Membuat Supervisor
+        User::create([
+            'name' => 'Supervisor Sekolah',
+            'email' => 'supervisor@supervisor.com',
+            'password' => Hash::make('password'),
+            'role' => 'supervisor',
+            'nip' => 'SPV123456789',
+            'remember_token' => Str::random(10),
+        ]);
+
         // Membuat Mata Pelajaran
         // Mengatur tipe dan KTTP sesuai permintaan
         $matematika = Subject::create([

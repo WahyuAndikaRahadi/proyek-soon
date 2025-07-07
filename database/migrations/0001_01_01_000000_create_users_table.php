@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');
-            $table->enum('role', ['admin', 'guru']); // Peran pengguna: admin atau guru
+            $table->enum('role', ['admin', 'guru', 'bk', 'supervisor']); // Peran pengguna: admin atau guru
             $table->string('nip')->unique()->nullable(); // Nomor Induk Pegawai (khusus guru)
             $table->rememberToken();
             $table->timestamps();
