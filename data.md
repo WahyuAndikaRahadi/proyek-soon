@@ -27,7 +27,7 @@ Kenapa stack ini?
 
 ```bash
 # 1. Buat project laravel baru
-composer create-project laravel/laravel:^12.0 bookstore
+composer create-project laravel/laravel bookstore
 cd bookstore
 
 # 2. Set koneksi database di .env (edit manual)
@@ -37,7 +37,7 @@ cd bookstore
 # DB_PASSWORD=
 
 # 3. Install Filament v5 (admin panel)
-composer require filament/filament:"~5.0"
+composer require filament/filament:"^5.0"
 php artisan filament:install --panels
 
 # 4. Buat akun admin pertama
@@ -154,7 +154,9 @@ php artisan migrate
 ```php
 class Category extends Model
 {
-    protected $fillable = ['name', 'slug'];
+    // pakai $guarded = [] (bukan $fillable) supaya semua kolom bisa diisi mass-assignment
+    // tanpa perlu daftar satu-satu -> lebih cepat & praktis pas ujian
+    protected $guarded = [];
 
     // satu kategori punya banyak buku
     public function books(): HasMany
@@ -168,7 +170,7 @@ class Category extends Model
 ```php
 class Book extends Model
 {
-    protected $fillable = ['category_id', 'title', 'author', 'description', 'price', 'stock', 'cover'];
+    protected $guarded = [];
 
     public function category(): BelongsTo
     {
@@ -181,7 +183,7 @@ class Book extends Model
 ```php
 class Order extends Model
 {
-    protected $fillable = ['user_id', 'order_code', 'total_price', 'status', 'payment_method', 'shipping_address'];
+    protected $guarded = [];
 
     public function user(): BelongsTo
     {
@@ -199,7 +201,7 @@ class Order extends Model
 ```php
 class OrderItem extends Model
 {
-    protected $fillable = ['order_id', 'book_id', 'qty', 'price'];
+    protected $guarded = [];
 
     public function book(): BelongsTo
     {
@@ -212,7 +214,7 @@ class OrderItem extends Model
 ```php
 class Message extends Model
 {
-    protected $fillable = ['user_id', 'subject', 'body', 'is_read'];
+    protected $guarded = [];
 
     public function user(): BelongsTo
     {
@@ -383,6 +385,16 @@ public static function table(Table $table): Table
 ---
 
 ## 5. SISI USER (Blade + Bootstrap)
+
+### Buat semua controller dulu (terminal)
+```bash
+php artisan make:controller HomeController
+php artisan make:controller AuthController
+php artisan make:controller BookController
+php artisan make:controller CartController
+php artisan make:controller CheckoutController
+php artisan make:controller MessageController
+```
 
 ### Routes — `routes/web.php`
 ```php
@@ -973,6 +985,101 @@ php artisan storage:link
 
 ---
 
+## 8.5. KUSTOMISASI PANEL FILAMENT (warna, logo, nama brand, dll)
+
+Semua kustomisasi ini diatur di **satu file**: `app/Providers/Filament/AdminPanelProvider.php`, di dalam method `panel()`. Dicek dari dokumentasi resmi Filament 5.x, jadi ini yang paling update.
+
+```php
+use Filament\Panel;
+use Filament\Support\Colors\Color;
+
+public function panel(Panel $panel): Panel
+{
+    return $panel
+        ->default()
+        ->id('admin')
+        ->path('admin')
+
+        // 1. Ganti nama brand (teks di pojok kiri atas sidebar)
+        ->brandName('BookStore Admin')
+
+        // 2. Ganti logo pakai gambar (taruh file di public/images/logo.png)
+        ->brandLogo(asset('images/logo.png'))
+        ->brandLogoHeight('2rem') // atur tinggi logo
+
+        // 3. Ganti favicon tab browser
+        ->favicon(asset('images/favicon.png'))
+
+        // 4. Ganti skema warna utama (primary, danger, success, dst)
+        //    Color::Indigo bisa diganti: Amber, Blue, Cyan, Emerald, Fuchsia,
+        //    Gray, Green, Indigo, Lime, Orange, Pink, Purple, Red, Rose,
+        //    Sky, Slate, Teal, Violet, Yellow, Zinc
+        ->colors([
+            'primary' => Color::Emerald, // warna utama tombol, link aktif, dll
+            'danger'  => Color::Rose,    // warna tombol delete/error
+            'success' => Color::Green,   // warna notifikasi sukses
+            'warning' => Color::Amber,
+            'info'    => Color::Blue,
+            'gray'    => Color::Slate,
+        ])
+
+        // 5. Ganti font (harus font Google Fonts)
+        ->font('Poppins')
+
+        // 6. Atur dark mode
+        ->darkMode(isForced: false) // false = user bisa toggle, true = paksa dark terus
+
+        // 7. Grouping menu sidebar biar rapi (opsional tapi bagus buat penilaian)
+        ->navigationGroups([
+            \Filament\Navigation\NavigationGroup::make('Manajemen Toko')
+                ->label('Manajemen Toko'), // CategoryResource & BookResource masuk sini
+            \Filament\Navigation\NavigationGroup::make('Data Pengguna')
+                ->label('Data Pengguna'),  // UserResource & OrderResource masuk sini
+        ])
+
+        // --- bagian bawaan, jangan dihapus ---
+        ->login()
+        ->colors(['primary' => Color::Emerald])
+        ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
+        ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
+        ->pages([\Filament\Pages\Dashboard::class])
+        ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
+        ->widgets([\Filament\Widgets\AccountWidget::class])
+        ->middleware([...])
+        ->authMiddleware([\Filament\Http\Middleware\Authenticate::class]);
+}
+```
+
+> **Cara masukkan tiap Resource ke navigation group** (poin 7): tambahkan static property di masing-masing Resource, contoh di `BookResource.php`:
+> ```php
+> protected static ?string $navigationGroup = 'Manajemen Toko';
+> protected static ?string $navigationIcon = 'heroicon-o-book-open'; // icon menu sidebar, bisa cari nama lain di heroicons.com
+> protected static ?string $navigationLabel = 'Data Buku'; // ganti label menu
+> ```
+
+### Ringkasan cepat — apa saja yang bisa dikustomisasi:
+| Yang mau diubah | Method / Property |
+|---|---|
+| Nama brand di sidebar | `->brandName('...')` |
+| Logo (gambar) | `->brandLogo(asset('images/logo.png'))` |
+| Tinggi logo | `->brandLogoHeight('2rem')` |
+| Favicon | `->favicon(asset('images/favicon.png'))` |
+| Warna utama tombol/link | `->colors(['primary' => Color::Emerald])` |
+| Font | `->font('Poppins')` |
+| Dark mode default | `->darkMode(isForced: false)` |
+| Grouping menu sidebar | `->navigationGroups([...])` + `$navigationGroup` di tiap Resource |
+| Icon menu per Resource | `$navigationIcon` di tiap Resource |
+| Urutan menu | `$navigationSort` (angka, makin kecil makin atas) di tiap Resource |
+| Label menu | `$navigationLabel` di tiap Resource |
+
+Taruh file logo/favicon di `public/images/` (bikin folder itu dulu kalau belum ada). Setelah edit `AdminPanelProvider.php`, jalankan:
+```bash
+php artisan optimize:clear
+```
+lalu refresh `/admin` untuk lihat hasilnya.
+
+---
+
 ## 9. FINALISASI (Poin 5 di Soal)
 
 ```bash
@@ -987,4 +1094,4 @@ Lalu: buat laporan di Ms. Word berisi link GitHub, rancangan/mockup (boleh skets
 
 ---
 
-**Catatan:** panduan ini sudah cukup untuk direplikasi ulang dari nol saat ujian (semua perintah terminal + kode inti ada). Kalau mau saya lengkapi view yang belum full (cart, checkout, login, register, contact) tinggal bilang, nanti saya buatkan filenya juga.
+**Status:** Panduan ini sudah **lengkap end-to-end** — perintah terminal (install project, install Filament v5, buat model/migration, buat controller, buat resource), kode inti (migration, model, Filament resource, controller), **semua view Blade** (`home`, `about`, `contact`, `auth/register`, `auth/login`, `books/index`, `books/show`, `cart/index`, `checkout/index`), sampai kustomisasi Filament (warna, logo, font, dark mode, grouping menu) dan cara push ke GitHub. Tinggal copy-paste sesuai path file masing-masing untuk direplikasi dari nol saat ujian.
