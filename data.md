@@ -27,7 +27,7 @@ Kenapa stack ini?
 
 ```bash
 # 1. Buat project laravel baru
-composer create-project laravel/laravel bookstore
+composer create-project laravel/laravel:^12.0 bookstore
 cd bookstore
 
 # 2. Set koneksi database di .env (edit manual)
@@ -37,7 +37,7 @@ cd bookstore
 # DB_PASSWORD=
 
 # 3. Install Filament v5 (admin panel)
-composer require filament/filament:"^5.0"
+composer require filament/filament:"~5.0"
 php artisan filament:install --panels
 
 # 4. Buat akun admin pertama
